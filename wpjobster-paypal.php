@@ -44,7 +44,8 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 		}
 
 		public function paypal_form( $payment_type, $common_details ){
-			$job_title                      = $common_details['title'];
+
+			$title                          = $common_details['title'];
 			$order_id                       = $common_details['order_id'];
 			$pid                            = $common_details['pid'];
 			$currency_code                  = $common_details['selected'];
@@ -59,17 +60,17 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 			$success_page = get_bloginfo( 'siteurl' ) . '/?jb_action=loader_page&payment_type=' . $payment_type . '&oid=' . $order_id;
 			$cancel_page  = get_bloginfo( 'siteurl' ) . '/?payment_response=paypal&payment_type=' . $payment_type . '&action=cancel&order_id=' . $order_id . '&jobid=' . $pid;
 
-			$this->p->add_field( 'business', $this->business );
-			$this->p->add_field( 'currency_code',$currency_code );
-			$this->p->add_field( 'return', $success_page );
+			$this->p->add_field( 'business'     , $this->business );
+			$this->p->add_field( 'currency_code', $currency_code );
+			$this->p->add_field( 'return'       , $success_page );
 			$this->p->add_field( 'cancel_return', $cancel_page );
-			$this->p->add_field( 'notify_url', $notify_page );
-			$this->p->add_field( 'item_name', $job_title ) ;
-			$this->p->add_field( 'item_number', $pid );
-			$this->p->add_field( 'charset', get_bloginfo( 'charset' ) );
-			$this->p->add_field( 'amount', $wpjobster_final_payable_amount );
-			$this->p->add_field( 'custom', $payment->id );
-			$this->p->add_field( 'key', $this->key );
+			$this->p->add_field( 'notify_url'   , $notify_page );
+			$this->p->add_field( 'item_name'    , $title ) ;
+			$this->p->add_field( 'item_number'  , $pid );
+			$this->p->add_field( 'charset'      , get_bloginfo( 'charset' ) );
+			$this->p->add_field( 'amount'       , $wpjobster_final_payable_amount );
+			$this->p->add_field( 'custom'       , $payment->id );
+			$this->p->add_field( 'key'          , $this->key );
 
 			$this->p->submit_paypal_post();
 		}
@@ -82,8 +83,8 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 						$payment = wpj_get_payment( array(
 							'id' => $_POST['custom'],
 						) );
-						$order_id     = $payment->payment_type_id;
-						$payment_type = $payment->payment_type;
+						$order_id        = $payment->payment_type_id;
+						$payment_type    = $payment->payment_type;
 					} else {
 						$item_number     = $_POST['item_number'];
 						$item_number_arr = explode( "|",$item_number );
@@ -115,10 +116,10 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 					$payment = wpj_get_payment( array(
 						'id' => $_POST['custom'],
 					) );
-					$order_id     = $payment->payment_type_id;
-					$payment_type = $payment->payment_type;
+					$order_id       = $payment->payment_type_id;
+					$payment_type   = $payment->payment_type;
 
-					$tm = time();
+					$tm             = time();
 					$payment_status = $_POST['payment_status'];
 					$transaction_id = $_POST['txn_id'];
 
