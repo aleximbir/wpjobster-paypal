@@ -8,14 +8,11 @@ class paypal_class {
 	var $fields = array();           // array holds the fields to submit to paypal
 	var $sandbox;
 
-	function paypal_class($sandbox = TRUE) {
-		$this->sandbox = $sandbox;
+	function paypal_class() {
 
-		if( $this->sandbox ){
-			$this->paypal_url = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
-		} else {
-			$this->paypal_url = 'https://www.paypal.com/cgi-bin/webscr';
-		}
+		$sdb = get_option('wpjobster_paypal_enable_sdbx');
+		$this->paypal_url = 'https://www.paypal.com/cgi-bin/webscr';
+		if($sdb == "yes") $this->paypal_url = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 
 		$this->last_error = '';
 		$this->ipn_log_file = '.ipn_results.log';
@@ -32,23 +29,23 @@ class paypal_class {
 
 	function submit_paypal_post() {
 		echo "<html>\n";
-		echo "<head><title>Processing Payment...</title></head>\n";
-		echo "<body onLoad=\"document.forms['paypal_form'].submit();\">\n";
-		echo "<center><h2>Please wait, your order is being processed and you";
-		echo " will be redirected to the paypal website.</h2></center>\n";
-		echo "<form method=\"post\" name=\"paypal_form\" ";
-		echo "action=\"".$this->paypal_url."\">\n";
+			echo "<head><title>" . __("Processing Payment",'wpjobster') . "...</title></head>\n";
+			echo "<body onLoad=\"document.form.submit();\">\n";
+				echo "<div id='loader' style='position:relative; width:100%; height:100%;'><img style='position:absolute; left:50%; top:50%; margin-left:-50px; margin-top:-50px;' src='".get_template_directory_uri()."/images/ajax-loader.gif' alt='Loading...'/></div>";
+				echo "<form method=\"post\" name=\"form\" action=\"".$this->paypal_url."\">\n";
+					if ( get_option('wpjobster_paypal_enable_secure') == 'yes' ) {
+						$encrypted = $this->paypal_encrypt($this->fields);
+						echo "<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">";
+						echo "<input type=\"hidden\" name=\"encrypted\" value=\"" . $encrypted . "\">";
+					} else {
+						foreach ( $this->fields as $name => $value ) {
+							echo "<input type=\"hidden\" name=\"$name\" value=\"$value\">";
+						}
 
-		foreach ($this->fields as $name => $value) {
-			echo "<input type=\"hidden\" name=\"$name\" value=\"$value\"/>\n";
-		}
-
-		echo "<center><br/><br/>If you are not automatically redirected to ";
-		echo "paypal within 5 seconds...<br/><br/>\n";
-		echo "<input type=\"submit\" value=\"Click Here\"></center>\n";
-
-		echo "</form>\n";
-		echo "</body></html>\n";
+					}
+				echo "</form>\n";
+			echo "</body>\n";
+		echo "</html>\n";
 	}
 
 	function validate_ipn() {
