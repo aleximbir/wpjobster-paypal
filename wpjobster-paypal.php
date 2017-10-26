@@ -60,6 +60,10 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 			$success_page = get_bloginfo( 'siteurl' ) . '/?jb_action=loader_page&payment_type=' . $payment_type . '&oid=' . $order_id;
 			$cancel_page  = get_bloginfo( 'siteurl' ) . '/?payment_response=paypal&payment_type=' . $payment_type . '&action=cancel&order_id=' . $order_id . '&jobid=' . $pid;
 
+			if( $payment_type == 'subscription' && $common_details['sub_type'] == 'lifetime' ){
+				$notify_page  = get_bloginfo( 'siteurl' ) . '/?payment_response=paypal&payment_type=' . $payment_type . '&oid=' . $order_id . '&sub_type=' . $common_details['sub_type'];
+			}
+
 			$this->p->add_field( 'business'     , $this->business );
 			$this->p->add_field( 'currency_code', $currency_code );
 			$this->p->add_field( 'return'       , $success_page );
@@ -133,6 +137,9 @@ if( ! class_exists("WPJobster_PayPal_Loader") ) {
 		}
 
 		public function success( $payment_type, $order_id, $transaction_id, $payment_response ){
+			if ( $payment_type == 'subscription' && ( isset( $_GET['sub_type'] ) && $_GET['sub_type'] == 'lifetime' ) ) {
+				do_action( "wpjobster_new_" . $payment_type . "_payment_success", $order_id, $this->_unique_id, $transaction_id, $payment_response );
+			}
 			do_action( "wpjobster_" . $payment_type . "_payment_success", $order_id, $this->_unique_id, $transaction_id, $payment_response );
 		}
 
